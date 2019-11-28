@@ -1,6 +1,6 @@
 [workspace]
 
 members = [
-    "graph",
-    "engine",
+  "graph",
+  "engine",
 ]

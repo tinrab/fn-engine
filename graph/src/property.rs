@@ -11,8 +11,12 @@ impl From<&str> for PropertyId {
 
 #[derive(Debug, Clone, PartialOrd, PartialEq)]
 pub enum Property {
-    Event { id: PropertyId },
-    Command { id: PropertyId },
+    Event {
+        id: PropertyId,
+    },
+    Command {
+        id: PropertyId,
+    },
     Input {
         id: PropertyId,
         data_type: DataType,
