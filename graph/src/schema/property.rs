@@ -40,19 +40,63 @@ pub enum Property {
 impl Property {
     pub fn id(&self) -> &PropertyId {
         match self {
-            Property::Command { id } => id,
             Property::Event { id } => id,
+            Property::Command { id } => id,
             Property::Input { id, .. } => id,
             Property::Output { id, .. } => id,
         }
     }
 
     pub fn is_data(&self) -> bool {
+        self.data_type().is_some()
+    }
+
+    pub fn is_control(&self) -> bool {
+        !self.is_data()
+    }
+
+    pub fn is_event(&self) -> bool {
+        if let Property::Event { .. } = self {
+            true
+        } else {
+            false
+        }
+    }
+
+    pub fn is_command(&self) -> bool {
+        if let Property::Command { .. } = self {
+            true
+        } else {
+            false
+        }
+    }
+
+    pub fn is_input(&self) -> bool {
+        if let Property::Input { .. } = self {
+            true
+        } else {
+            false
+        }
+    }
+
+    pub fn is_output(&self) -> bool {
+        if let Property::Output { .. } = self {
+            true
+        } else {
+            false
+        }
+    }
+
+    pub fn is_source(&self) -> bool {
         match self {
             Property::Input { .. } => true,
-            Property::Output { .. } => true,
+            Property::Command { .. } => true,
             _ => false,
         }
+    }
+
+    pub fn is_target(&self) -> bool {
+        !self.is_source()
     }
 
     pub fn data_type(&self) -> Option<&DataType> {
