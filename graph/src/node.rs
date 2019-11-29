@@ -1,9 +1,16 @@
 use std::collections::HashMap;
+use std::fmt::{Display, Error, Formatter};
 
 use crate::property::{Property, PropertyId};
 
 #[derive(Debug, Hash, Clone, PartialOrd, Eq, PartialEq)]
 pub struct NodeId(String);
+
+impl Display for NodeId {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
+        f.write_str(self.0.as_str())
+    }
+}
 
 impl From<&str> for NodeId {
     fn from(s: &str) -> Self {
@@ -11,10 +18,26 @@ impl From<&str> for NodeId {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Node {
-    id: NodeId,
-    properties: HashMap<PropertyId, Property>,
+    pub id: NodeId,
+    pub properties: HashMap<PropertyId, Property>,
+}
+
+impl<'a> Node {
+    pub fn new(id: NodeId) -> Self {
+        Node {
+            id,
+            properties: Default::default(),
+        }
+    }
+
+    pub fn property(&'a mut self, property: Property) -> &'a mut Self {
+        if let Some(property) = self.properties.insert(property.id().clone(), property) {
+            panic!("duplicate property id '{}'", property.id());
+        }
+        self
+    }
 }
 
 #[cfg(test)]
