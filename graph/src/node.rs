@@ -25,18 +25,34 @@ pub struct Node {
 }
 
 impl<'a> Node {
-    pub fn new(id: NodeId) -> Self {
-        Node {
-            id,
-            properties: Default::default(),
+    pub fn builder(id: NodeId) -> NodeBuilder {
+        NodeBuilder::new(id)
+    }
+}
+
+pub struct NodeBuilder {
+    node: Node,
+}
+
+impl<'a> NodeBuilder {
+    fn new(id: NodeId) -> Self {
+        NodeBuilder {
+            node: Node {
+                id,
+                properties: Default::default(),
+            },
         }
     }
 
     pub fn property(&'a mut self, property: Property) -> &'a mut Self {
-        if let Some(property) = self.properties.insert(property.id().clone(), property) {
+        if let Some(property) = self.node.properties.insert(property.id().clone(), property) {
             panic!("duplicate property id '{}'", property.id());
         }
         self
+    }
+
+    pub fn build(&'a self) -> Node {
+        self.node.clone()
     }
 }
 
@@ -47,18 +63,11 @@ mod tests {
 
     #[test]
     fn basic() {
-        let n1 = Node {
-            id: "a".into(),
-            properties: [(
-                PropertyId::from("command"),
-                Property::Command {
-                    id: "command".into(),
-                },
-            )]
-            .iter()
-            .cloned()
-            .collect(),
-        };
+        let n1 = Node::builder(NodeId::from("a"))
+            .property(Property::Command {
+                id: "command".into(),
+            })
+            .build();
 
         assert_eq!(n1.id, NodeId::from("a"));
         assert_eq!(

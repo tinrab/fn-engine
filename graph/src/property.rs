@@ -42,16 +42,8 @@ impl Property {
         match self {
             Property::Command { id } => id,
             Property::Event { id } => id,
-            Property::Input {
-                id,
-                data_type: _,
-                default_value: _,
-            } => id,
-            Property::Output {
-                id,
-                data_type: _,
-                default_value: _,
-            } => id,
+            Property::Input { id, .. } => id,
+            Property::Output { id, .. } => id,
         }
     }
 }

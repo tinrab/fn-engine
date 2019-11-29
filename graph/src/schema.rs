@@ -11,14 +11,14 @@ pub struct SchemaBuilder {
     schema: Schema,
 }
 
-impl<'a> Schema {
+impl Schema {
     pub fn builder() -> SchemaBuilder {
         SchemaBuilder::new()
     }
 }
 
 impl<'a> SchemaBuilder {
-    pub fn new() -> Self {
+    fn new() -> Self {
         SchemaBuilder {
             schema: Schema {
                 nodes: Default::default(),
@@ -49,14 +49,14 @@ mod tests {
     fn basic() {
         let _schema = Schema::builder()
             .node(
-                Node::new(NodeId::from("action"))
+                Node::builder(NodeId::from("action"))
                     .property(Property::Event {
                         id: PropertyId::from("execute"),
                     })
-                    .clone(),
+                    .build(),
             )
             .node(
-                Node::new(NodeId::from("text"))
+                Node::builder(NodeId::from("text"))
                     .property(Property::Input {
                         id: PropertyId::from("value"),
                         data_type: DataType::String,
@@ -67,10 +67,10 @@ mod tests {
                         data_type: DataType::String,
                         default_value: None,
                     })
-                    .clone(),
+                    .build(),
             )
             .node(
-                Node::new(NodeId::from("printer"))
+                Node::builder(NodeId::from("printer"))
                     .property(Property::Command {
                         id: PropertyId::from("print"),
                     })
@@ -79,7 +79,7 @@ mod tests {
                         data_type: DataType::String,
                         default_value: None,
                     })
-                    .clone(),
+                    .build(),
             )
             .build();
     }
@@ -88,8 +88,8 @@ mod tests {
     #[should_panic]
     fn duplicate_node_id() {
         let _schema = Schema::builder()
-            .node(Node::new(NodeId::from("a")).clone())
-            .node(Node::new(NodeId::from("a")).clone())
+            .node(Node::builder(NodeId::from("a")).build())
+            .node(Node::builder(NodeId::from("a")).build())
             .build();
     }
 }
