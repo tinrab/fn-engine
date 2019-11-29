@@ -46,4 +46,20 @@ impl Property {
             Property::Output { id, .. } => id,
         }
     }
+
+    pub fn is_data(&self) -> bool {
+        match self {
+            Property::Input { .. } => true,
+            Property::Output { .. } => true,
+            _ => false,
+        }
+    }
+
+    pub fn data_type(&self) -> Option<&DataType> {
+        match self {
+            Property::Input { data_type, .. } => Some(data_type),
+            Property::Output { data_type, .. } => Some(data_type),
+            _ => None,
+        }
+    }
 }

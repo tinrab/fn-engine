@@ -1,10 +1,13 @@
 use std::collections::HashMap;
 
-use crate::node::{Node, NodeId};
+use crate::schema::node::{Node, NodeId};
+
+pub mod node;
+pub mod property;
 
 #[derive(Debug, Clone)]
 pub struct Schema {
-    nodes: HashMap<NodeId, Node>,
+    pub nodes: HashMap<NodeId, Node>,
 }
 
 pub struct SchemaBuilder {
@@ -40,23 +43,23 @@ impl<'a> SchemaBuilder {
 
 #[cfg(test)]
 mod tests {
-    use crate::node::{Node, NodeId};
-    use crate::property::{Property, PropertyId};
-    use crate::schema::Schema;
+    use crate::schema::property::{Property, PropertyId};
     use crate::value::DataType;
+
+    use super::*;
 
     #[test]
     fn basic() {
         let _schema = Schema::builder()
             .node(
-                Node::builder(NodeId::from("action"))
+                Node::builder("action")
                     .property(Property::Event {
                         id: PropertyId::from("execute"),
                     })
                     .build(),
             )
             .node(
-                Node::builder(NodeId::from("text"))
+                Node::builder("text")
                     .property(Property::Input {
                         id: PropertyId::from("value"),
                         data_type: DataType::String,
@@ -70,7 +73,7 @@ mod tests {
                     .build(),
             )
             .node(
-                Node::builder(NodeId::from("printer"))
+                Node::builder("printer")
                     .property(Property::Command {
                         id: PropertyId::from("print"),
                     })
@@ -88,8 +91,8 @@ mod tests {
     #[should_panic]
     fn duplicate_node_id() {
         let _schema = Schema::builder()
-            .node(Node::builder(NodeId::from("a")).build())
-            .node(Node::builder(NodeId::from("a")).build())
+            .node(Node::builder("a").build())
+            .node(Node::builder("a").build())
             .build();
     }
 }

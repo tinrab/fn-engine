@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::fmt::{Display, Error, Formatter};
 
-use crate::property::{Property, PropertyId};
+use crate::schema::property::{Property, PropertyId};
 
 #[derive(Debug, Hash, Clone, PartialOrd, Eq, PartialEq)]
 pub struct NodeId(String);
@@ -25,8 +25,8 @@ pub struct Node {
 }
 
 impl<'a> Node {
-    pub fn builder(id: NodeId) -> NodeBuilder {
-        NodeBuilder::new(id)
+    pub fn builder(id: &'a str) -> NodeBuilder {
+        NodeBuilder::new(NodeId::from(id))
     }
 }
 
@@ -58,12 +58,11 @@ impl<'a> NodeBuilder {
 
 #[cfg(test)]
 mod tests {
-    use crate::node::{Node, NodeId};
-    use crate::property::{Property, PropertyId};
+    use super::*;
 
     #[test]
     fn basic() {
-        let n1 = Node::builder(NodeId::from("a"))
+        let n1 = Node::builder("a")
             .property(Property::Command {
                 id: "command".into(),
             })

@@ -14,6 +14,17 @@ pub enum Value {
     String(String),
 }
 
+impl Value {
+    pub fn data_type(&self) -> DataType {
+        match self {
+            Value::Integer(_) => DataType::Integer,
+            Value::Float(_) => DataType::Float,
+            Value::Boolean(_) => DataType::Boolean,
+            Value::String(_) => DataType::String,
+        }
+    }
+}
+
 impl From<i64> for Value {
     fn from(a: i64) -> Self {
         Value::Integer(a)
