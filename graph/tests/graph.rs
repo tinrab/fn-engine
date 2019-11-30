@@ -76,8 +76,8 @@ fn errors() {
     assert!(catch_unwind(|| {
         let schema = build_schema();
         let mut graph_builder = Graph::builder(&schema);
-        let a1 = graph_builder.node("a", "a1").unwrap();
-        let a1 = graph_builder.node("a", "a1").unwrap();
+        graph_builder.node("a", "a1").unwrap();
+        graph_builder.node("a", "a1").unwrap();
     })
     .is_err());
 
@@ -95,12 +95,12 @@ fn errors() {
         let schema = build_schema();
         let mut graph_builder = Graph::builder(&schema);
         let a1 = graph_builder.node("a", "a1").unwrap();
-        let a1 = graph_builder.node("a", "a1").unwrap();
+        let a2 = graph_builder.node("a", "a1").unwrap();
         graph_builder
             .connect(
                 &a1,
                 PropertyId::from("event"),
-                &a1,
+                &a2,
                 PropertyId::from("command"),
             )
             .unwrap();
