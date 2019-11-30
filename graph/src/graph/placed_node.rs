@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use crate::graph::property_value::PropertyValue;
 use crate::schema::node::Node;
-use crate::schema::property::PropertyId;
+use crate::schema::property::{Property, PropertyId};
 
 #[derive(Debug, Clone)]
 pub struct PlacedNode {
@@ -18,6 +18,17 @@ impl PlacedNode {
             key: key.into(),
             values: Default::default(),
         }
+    }
+
+    pub fn get_property(&self, property_id: &PropertyId) -> &Property {
+        self.node.properties.get(property_id).unwrap()
+    }
+
+    pub fn get_property_by_id(&self, property_id: &str) -> &Property {
+        self.node
+            .properties
+            .get(&PropertyId::from(property_id))
+            .unwrap()
     }
 }
 

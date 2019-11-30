@@ -23,6 +23,10 @@ impl Graph {
     pub fn builder(schema: &Schema) -> GraphBuilder {
         GraphBuilder::new(schema)
     }
+
+    pub fn get_node(&self, key: &str) -> &PlacedNode {
+        self.nodes.get(key).unwrap()
+    }
 }
 
 pub struct GraphBuilder<'a> {
@@ -110,23 +114,8 @@ impl<'a> GraphBuilder<'a> {
         target_node: &PlacedNode,
         target_property_id: PropertyId,
     ) -> Result<(), GraphError> {
-        let source_property = source_node.node.properties.get(&source_property_id);
-        if source_property.is_none() {
-            return Err(GraphError::GraphBuilder(format!(
-                "Node property '{}' not found for '{}'",
-                source_property_id, source_node.node.id
-            )));
-        }
-        let source_property = source_property.unwrap().clone();
-
-        let target_property = target_node.node.properties.get(&target_property_id);
-        if target_property.is_none() {
-            return Err(GraphError::GraphBuilder(format!(
-                "Node property '{}' not found for '{}'",
-                target_property_id, target_node.node.id
-            )));
-        }
-        let target_property = target_property.unwrap().clone();
+        let source_property = source_node.get_property(&source_property_id);
+        let target_property = target_node.get_property(&target_property_id);
 
         if source_node.key == target_node.key {
             return Err(GraphError::GraphBuilder(String::from(
@@ -161,8 +150,8 @@ impl<'a> GraphBuilder<'a> {
         }
 
         let edge = Edge::new(
-            Hook::new(source_node.clone(), source_property),
-            Hook::new(target_node.clone(), target_property),
+            Hook::new(source_node.clone(), source_property.clone()),
+            Hook::new(target_node.clone(), target_property.clone()),
         );
 
         if self.graph.edge_map.contains_edge(&edge) {
@@ -178,136 +167,5 @@ impl<'a> GraphBuilder<'a> {
 
     pub fn build(self) -> Graph {
         self.graph.clone()
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use crate::graph::Graph;
-    use crate::schema::node::Node;
-    use crate::schema::property::{Property, PropertyId};
-    use crate::schema::Schema;
-    use crate::value::{DataType, Value};
-
-    #[test]
-    fn basic() {
-        let schema = build_schema();
-        let graph = {
-            let mut graph_builder = Graph::builder(&schema);
-            let a1 = graph_builder.node("a", "a1").unwrap();
-            let b1 = graph_builder.node("b", "b1").unwrap();
-            graph_builder
-                .assign(&b1, PropertyId::from("input-integer"), Value::Integer(42))
-                .unwrap();
-            let c1 = graph_builder.node("c", "c1").unwrap();
-
-            graph_builder
-                .connect(
-                    &a1,
-                    PropertyId::from("event"),
-                    &b1,
-                    PropertyId::from("command"),
-                )
-                .unwrap();
-            graph_builder
-                .connect(
-                    &b1,
-                    PropertyId::from("event"),
-                    &c1,
-                    PropertyId::from("command"),
-                )
-                .unwrap();
-
-            graph_builder.build()
-        };
-
-        assert_eq!(graph.nodes.len(), 3);
-        assert_eq!(graph.edge_map.edges.len(), 2);
-        let a1 = graph.nodes.get("a1").unwrap();
-        let b1 = graph.nodes.get("b1").unwrap();
-        let c1 = graph.nodes.get("c1").unwrap();
-        assert!(graph.edge_map.contains_edge_between(
-            a1,
-            a1.node.properties.get(&PropertyId::from("event")).unwrap(),
-            b1,
-            b1.node
-                .properties
-                .get(&PropertyId::from("command"))
-                .unwrap(),
-        ));
-        assert!(graph.edge_map.contains_edge_between(
-            b1,
-            b1.node.properties.get(&PropertyId::from("event")).unwrap(),
-            c1,
-            c1.node
-                .properties
-                .get(&PropertyId::from("command"))
-                .unwrap(),
-        ));
-    }
-
-    fn build_schema() -> Schema {
-        Schema::builder()
-            .node(
-                Node::builder("a")
-                    .property(Property::Event {
-                        id: PropertyId::from("event"),
-                    })
-                    .property(Property::Command {
-                        id: PropertyId::from("command"),
-                    })
-                    .property(Property::Input {
-                        id: PropertyId::from("input-string"),
-                        data_type: DataType::String,
-                        default_value: None,
-                    })
-                    .property(Property::Output {
-                        id: PropertyId::from("output-string"),
-                        data_type: DataType::String,
-                        default_value: None,
-                    })
-                    .build(),
-            )
-            .node(
-                Node::builder("b")
-                    .property(Property::Event {
-                        id: PropertyId::from("event"),
-                    })
-                    .property(Property::Command {
-                        id: PropertyId::from("command"),
-                    })
-                    .property(Property::Input {
-                        id: PropertyId::from("input-integer"),
-                        data_type: DataType::Integer,
-                        default_value: None,
-                    })
-                    .property(Property::Output {
-                        id: PropertyId::from("output-integer"),
-                        data_type: DataType::Integer,
-                        default_value: None,
-                    })
-                    .build(),
-            )
-            .node(
-                Node::builder("c")
-                    .property(Property::Event {
-                        id: PropertyId::from("event"),
-                    })
-                    .property(Property::Command {
-                        id: PropertyId::from("command"),
-                    })
-                    .property(Property::Input {
-                        id: PropertyId::from("input-integer"),
-                        data_type: DataType::Integer,
-                        default_value: None,
-                    })
-                    .property(Property::Output {
-                        id: PropertyId::from("output-integer"),
-                        data_type: DataType::Integer,
-                        default_value: None,
-                    })
-                    .build(),
-            )
-            .build()
     }
 }

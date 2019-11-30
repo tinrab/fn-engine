@@ -17,6 +17,12 @@ impl From<&str> for PropertyId {
     }
 }
 
+impl Into<String> for PropertyId {
+    fn into(self) -> String {
+        self.0
+    }
+}
+
 #[derive(Debug, Clone, PartialOrd, PartialEq)]
 pub enum Property {
     Event {
