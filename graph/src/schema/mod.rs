@@ -1,3 +1,5 @@
+//! Schema describes what elements can graphs contain.
+
 use std::collections::HashMap;
 
 use crate::schema::node::{Node, NodeId};
@@ -5,16 +7,20 @@ use crate::schema::node::{Node, NodeId};
 pub mod node;
 pub mod property;
 
+/// Holds available elements for building graphs.
 #[derive(Debug, Clone)]
 pub struct Schema {
+    /// All available nodes.
     pub nodes: HashMap<NodeId, Node>,
 }
 
+/// Utility for building a `Schema`.
 pub struct SchemaBuilder {
     schema: Schema,
 }
 
 impl Schema {
+    /// Constructs a new `SchemaBuilder`.
     pub fn builder() -> SchemaBuilder {
         SchemaBuilder::new()
     }
@@ -29,6 +35,7 @@ impl<'a> SchemaBuilder {
         }
     }
 
+    /// Declares a node.
     pub fn node(&'a mut self, node: Node) -> &'a mut SchemaBuilder {
         if let Some(node) = self.schema.nodes.insert(node.id.clone(), node) {
             panic!("duplicate node id '{}'", node.id);
@@ -36,6 +43,7 @@ impl<'a> SchemaBuilder {
         self
     }
 
+    /// Builds schema.
     pub fn build(&'a self) -> Schema {
         self.schema.clone()
     }
@@ -68,7 +76,6 @@ mod tests {
                     .property(Property::Output {
                         id: PropertyId::from("return-value"),
                         data_type: DataType::String,
-                        default_value: None,
                     })
                     .build(),
             )

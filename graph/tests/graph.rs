@@ -2,7 +2,6 @@ use std::panic::catch_unwind;
 
 use graph::graph::Graph;
 use graph::schema::node::Node;
-use graph::schema::property::{Property, PropertyId};
 use graph::schema::Schema;
 use graph::value::{DataType, Value};
 
@@ -13,37 +12,25 @@ fn build_graph() {
         let mut graph_builder = Graph::builder(&schema);
         let a1 = graph_builder.node("a", "a1").unwrap();
         let b1 = graph_builder.node("b", "b1").unwrap();
-        graph_builder
-            .assign(&b1, PropertyId::from("input-integer"), Value::Integer(42))
-            .unwrap();
         let c1 = graph_builder.node("c", "c1").unwrap();
 
         graph_builder
-            .connect(
-                &a1,
-                PropertyId::from("event"),
-                &b1,
-                PropertyId::from("command"),
-            )
+            .assign(&a1, "input-string", Value::from("abc"))
             .unwrap();
         graph_builder
-            .connect(
-                &b1,
-                PropertyId::from("event"),
-                &c1,
-                PropertyId::from("command"),
-            )
+            .assign(&b1, "input-integer", Value::from(1))
             .unwrap();
         graph_builder
-            .connect(
-                &b1,
-                PropertyId::from("output-integer"),
-                &c1,
-                PropertyId::from("input-integer"),
-            )
+            .assign(&c1, "input-integer", Value::from(2))
             .unwrap();
 
-        graph_builder.build()
+        graph_builder.connect(&a1, "event", &b1, "command").unwrap();
+        graph_builder.connect(&b1, "event", &c1, "command").unwrap();
+        graph_builder
+            .connect(&b1, "output-integer", &c1, "input-integer")
+            .unwrap();
+
+        graph_builder.build().unwrap()
     };
 
     assert_eq!(graph.nodes.len(), 3);
@@ -86,7 +73,7 @@ fn errors() {
         let mut graph_builder = Graph::builder(&schema);
         let a1 = graph_builder.node("a", "a1").unwrap();
         graph_builder
-            .assign(&a1, PropertyId::from("command"), Value::Integer(42))
+            .assign(&a1, "command", Value::Integer(42))
             .unwrap();
     })
     .is_err());
@@ -96,14 +83,15 @@ fn errors() {
         let mut graph_builder = Graph::builder(&schema);
         let a1 = graph_builder.node("a", "a1").unwrap();
         let a2 = graph_builder.node("a", "a1").unwrap();
-        graph_builder
-            .connect(
-                &a1,
-                PropertyId::from("event"),
-                &a2,
-                PropertyId::from("command"),
-            )
-            .unwrap();
+        graph_builder.connect(&a1, "event", &a2, "command").unwrap();
+    })
+    .is_err());
+
+    assert!(catch_unwind(|| {
+        let schema = build_schema();
+        let mut graph_builder = Graph::builder(&schema);
+        graph_builder.node("a", "a1").unwrap();
+        graph_builder.build().unwrap()
     })
     .is_err());
 }
@@ -112,62 +100,26 @@ fn build_schema() -> Schema {
     Schema::builder()
         .node(
             Node::builder("a")
-                .property(Property::Event {
-                    id: PropertyId::from("event"),
-                })
-                .property(Property::Command {
-                    id: PropertyId::from("command"),
-                })
-                .property(Property::Input {
-                    id: PropertyId::from("input-string"),
-                    data_type: DataType::String,
-                    default_value: None,
-                })
-                .property(Property::Output {
-                    id: PropertyId::from("output-string"),
-                    data_type: DataType::String,
-                    default_value: None,
-                })
+                .event("event")
+                .command("command")
+                .input("input-string", DataType::String, None)
+                .output("output-string", DataType::String)
                 .build(),
         )
         .node(
             Node::builder("b")
-                .property(Property::Event {
-                    id: PropertyId::from("event"),
-                })
-                .property(Property::Command {
-                    id: PropertyId::from("command"),
-                })
-                .property(Property::Input {
-                    id: PropertyId::from("input-integer"),
-                    data_type: DataType::Integer,
-                    default_value: None,
-                })
-                .property(Property::Output {
-                    id: PropertyId::from("output-integer"),
-                    data_type: DataType::Integer,
-                    default_value: None,
-                })
+                .event("event")
+                .command("command")
+                .input("input-integer", DataType::Integer, None)
+                .output("output-integer", DataType::Integer)
                 .build(),
         )
         .node(
             Node::builder("c")
-                .property(Property::Event {
-                    id: PropertyId::from("event"),
-                })
-                .property(Property::Command {
-                    id: PropertyId::from("command"),
-                })
-                .property(Property::Input {
-                    id: PropertyId::from("input-integer"),
-                    data_type: DataType::Integer,
-                    default_value: None,
-                })
-                .property(Property::Output {
-                    id: PropertyId::from("output-integer"),
-                    data_type: DataType::Integer,
-                    default_value: None,
-                })
+                .event("event")
+                .command("command")
+                .input("input-integer", DataType::Integer, None)
+                .output("output-integer", DataType::Integer)
                 .build(),
         )
         .build()

@@ -1,20 +1,33 @@
-#[derive(Debug, Clone, PartialOrd, PartialEq)]
+//! Base constructs for working with values.
+
+/// Value's data type.
+#[derive(Debug, Copy, Clone, PartialOrd, PartialEq)]
 pub enum DataType {
+    /// Type for `i64`.
     Integer,
+    /// Type for `f64`.
     Float,
+    /// Type for `bool`.
     Boolean,
+    /// Type for `String`.
     String,
 }
 
+/// Value type.
 #[derive(Debug, Clone, PartialOrd, PartialEq)]
 pub enum Value {
+    /// Holds a `i64`.
     Integer(i64),
+    /// Holds a `f64`.
     Float(f64),
+    /// Holds a `bool`.
     Boolean(bool),
+    /// Holds a `String`.
     String(String),
 }
 
 impl Value {
+    /// Returns Value's data type.
     pub fn data_type(&self) -> DataType {
         match self {
             Value::Integer(_) => DataType::Integer,

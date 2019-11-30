@@ -1,14 +1,20 @@
-use crate::schema::property::Property;
+//! Value assigned to a property.
+
+use crate::schema::property::PropertyId;
 use crate::value::Value;
 
+/// Represents a value assigned to a property.
 #[derive(Debug, Clone)]
 pub struct PropertyValue {
-    pub property: Property,
+    /// Id of a property.
+    pub property_id: PropertyId,
+    /// Assigned value.
     pub value: Value,
 }
 
 impl PropertyValue {
-    pub fn new(property: Property, value: Value) -> Self {
-        PropertyValue { property, value }
+    /// Constructs a `PropertyValue`.
+    pub fn new(property_id: PropertyId, value: Value) -> Self {
+        PropertyValue { property_id, value }
     }
 }
