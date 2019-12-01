@@ -1,0 +1,2 @@
+[worker]
+  pool_size = 3

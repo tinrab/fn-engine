@@ -4,7 +4,7 @@ use std::collections::HashMap;
 use std::fmt::{Display, Error, Formatter};
 
 use crate::schema::property::{Property, PropertyId};
-use crate::value::{DataType, Value};
+use crate::value::DataType;
 
 /// Type for node ids.
 #[derive(Debug, Hash, Clone, PartialOrd, Eq, PartialEq)]
@@ -76,16 +76,10 @@ impl<'a> NodeBuilder {
     }
 
     /// Declares a new input property.
-    pub fn input(
-        &'a mut self,
-        id: &str,
-        data_type: DataType,
-        default_value: Option<Value>,
-    ) -> &'a mut Self {
+    pub fn input(&'a mut self, id: &str, data_type: DataType) -> &'a mut Self {
         self.property(Property::Input {
             id: PropertyId::from(id),
             data_type,
-            default_value,
         })
     }
 

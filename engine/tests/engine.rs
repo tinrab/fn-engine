@@ -1,4 +1,4 @@
-use engine::Engine;
+use engine::{Engine, EngineConfig};
 use graph::error::GraphError;
 use graph::graph::Graph;
 use graph::schema::Schema;
@@ -33,9 +33,11 @@ fn basic() {
 
         gb.build()
     };
-    let graph = build_graph(&schema).unwrap();
 
-    let engine = Engine::new(schema);
+    let graph = build_graph(&schema).unwrap();
+    let engine_config = EngineConfig::load().unwrap();
+    let mut engine = Engine::new(engine_config, schema);
+
     engine.run();
-    engine.execute(&graph);
+    engine.execute(graph);
 }

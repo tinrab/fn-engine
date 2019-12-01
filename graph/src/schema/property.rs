@@ -1,8 +1,7 @@
 //! Properties declared for nodes.
 
+use crate::value::DataType;
 use std::fmt::{Display, Error, Formatter};
-
-use crate::value::{DataType, Value};
 
 /// Type for property ids.
 #[derive(Debug, Hash, Clone, PartialOrd, Eq, PartialEq)]
@@ -45,8 +44,6 @@ pub enum Property {
         id: PropertyId,
         /// Property's data type.
         data_type: DataType,
-        /// Property's optional default value. Must be assigned if `None`.
-        default_value: Option<Value>,
     },
     /// Output is produces by a node.
     Output {

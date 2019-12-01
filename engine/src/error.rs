@@ -1,7 +1,9 @@
 //! Error type to be used inside `engine` module.
 
-use std::error;
+use std::error::Error as StdError;
 use std::fmt::{Display, Error, Formatter};
+
+use config::ConfigError;
 
 use graph::error::GraphError;
 
@@ -33,7 +35,7 @@ impl Display for EngineError {
     }
 }
 
-impl<'a> error::Error for EngineError {
+impl StdError for EngineError {
     fn description(&self) -> &str {
         self.message.as_str()
     }
@@ -42,5 +44,13 @@ impl<'a> error::Error for EngineError {
 impl From<GraphError> for EngineError {
     fn from(e: GraphError) -> Self {
         EngineError { message: e.message }
+    }
+}
+
+impl From<ConfigError> for EngineError {
+    fn from(e: ConfigError) -> Self {
+        EngineError {
+            message: String::from(e.description()),
+        }
     }
 }

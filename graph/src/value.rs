@@ -27,6 +27,16 @@ pub enum Value {
 }
 
 impl Value {
+    /// Returns default value for type.
+    pub fn default_for(data_type: DataType) -> Self {
+        match data_type {
+            DataType::Integer => Value::from(0),
+            DataType::Float => Value::from(0.0),
+            DataType::Boolean => Value::from(false),
+            DataType::String => Value::from(""),
+        }
+    }
+
     /// Returns Value's data type.
     pub fn data_type(&self) -> DataType {
         match self {

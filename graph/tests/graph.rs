@@ -86,14 +86,6 @@ fn errors() {
         graph_builder.connect(&a1, "event", &a2, "command").unwrap();
     })
     .is_err());
-
-    assert!(catch_unwind(|| {
-        let schema = build_schema();
-        let mut graph_builder = Graph::builder(&schema);
-        graph_builder.node("a", "a1").unwrap();
-        graph_builder.build().unwrap()
-    })
-    .is_err());
 }
 
 fn build_schema() -> Schema {
@@ -102,7 +94,7 @@ fn build_schema() -> Schema {
             Node::builder("a")
                 .event("event")
                 .command("command")
-                .input("input-string", DataType::String, None)
+                .input("input-string", DataType::String)
                 .output("output-string", DataType::String)
                 .build(),
         )
@@ -110,7 +102,7 @@ fn build_schema() -> Schema {
             Node::builder("b")
                 .event("event")
                 .command("command")
-                .input("input-integer", DataType::Integer, None)
+                .input("input-integer", DataType::Integer)
                 .output("output-integer", DataType::Integer)
                 .build(),
         )
@@ -118,7 +110,7 @@ fn build_schema() -> Schema {
             Node::builder("c")
                 .event("event")
                 .command("command")
-                .input("input-integer", DataType::Integer, None)
+                .input("input-integer", DataType::Integer)
                 .output("output-integer", DataType::Integer)
                 .build(),
         )

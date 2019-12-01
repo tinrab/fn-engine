@@ -17,32 +17,32 @@ pub fn get() -> Schema {
             Node::builder("repeat")
                 .command("start")
                 .event("executed")
-                .input("times", DataType::Integer, None)
+                .input("times", DataType::Integer)
                 .build(),
         )
         .node(
             Node::builder("printer")
                 .command("print")
-                .input("content", DataType::Integer, None)
+                .input("content", DataType::Integer)
                 .build(),
         )
         .node(
             Node::builder("plus")
-                .input("a", DataType::Integer, None)
-                .input("b", DataType::Integer, None)
+                .input("a", DataType::Integer)
+                .input("b", DataType::Integer)
                 .output("c", DataType::Integer)
                 .build(),
         )
         .node(
             Node::builder("minus")
-                .input("a", DataType::Integer, None)
-                .input("b", DataType::Integer, None)
+                .input("a", DataType::Integer)
+                .input("b", DataType::Integer)
                 .output("c", DataType::Integer)
                 .build(),
         )
         .node(
             Node::builder("integer")
-                .input("value", DataType::Integer, None)
+                .input("value", DataType::Integer)
                 .output("return-value", DataType::Integer)
                 .build(),
         )

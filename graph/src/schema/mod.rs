@@ -71,7 +71,6 @@ mod tests {
                     .property(Property::Input {
                         id: PropertyId::from("value"),
                         data_type: DataType::String,
-                        default_value: None,
                     })
                     .property(Property::Output {
                         id: PropertyId::from("return-value"),
@@ -87,7 +86,6 @@ mod tests {
                     .property(Property::Input {
                         id: PropertyId::from("content"),
                         data_type: DataType::String,
-                        default_value: None,
                     })
                     .build(),
             )

@@ -5,6 +5,7 @@ use std::collections::HashMap;
 use crate::graph::property_value::PropertyValue;
 use crate::schema::node::Node;
 use crate::schema::property::{Property, PropertyId};
+use crate::value::Value;
 
 /// Represents a placed node inside an graph.
 #[derive(Debug, Clone)]
@@ -29,18 +30,11 @@ impl PlacedNode {
                 .filter(|property| property.is_input())
                 .map(|property| {
                     (
-                        property.id(),
-                        match property {
-                            Property::Input { default_value, .. } => default_value.clone(),
-                            _ => None,
-                        },
-                    )
-                })
-                .filter(|(_, default_value)| default_value.is_some())
-                .map(|(property_id, default_value)| {
-                    (
-                        property_id.clone(),
-                        PropertyValue::new(property_id.clone(), default_value.unwrap()),
+                        property.id().clone(),
+                        PropertyValue::new(
+                            property.id().clone(),
+                            Value::default_for(*property.data_type().unwrap()),
+                        ),
                     )
                 })
                 .collect(),
