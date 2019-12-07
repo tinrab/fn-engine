@@ -6,8 +6,6 @@ use crate::error::GraphError;
 use crate::graph::edge::{Edge, EdgeMap, Hook};
 use crate::graph::placed_node::PlacedNode;
 use crate::graph::property_value::PropertyValue;
-use crate::schema::node::NodeId;
-use crate::schema::property::PropertyId;
 use crate::schema::Schema;
 use crate::value::Value;
 
@@ -60,7 +58,7 @@ impl<'a> GraphBuilder<'a> {
         if self.graph.nodes.contains_key(key) {
             return Err(GraphError::from(format!("Duplicate node key '{}'", id)));
         }
-        let node = self.schema.nodes.get(&NodeId::from(id));
+        let node = self.schema.nodes.get(id);
         if node.is_none() {
             return Err(GraphError::from(format!(
                 "Node with id '{}' not found.",
@@ -80,10 +78,7 @@ impl<'a> GraphBuilder<'a> {
         property_id: &str,
         value: Value,
     ) -> Result<(), GraphError> {
-        let property = placed_node
-            .node
-            .properties
-            .get(&PropertyId::from(property_id));
+        let property = placed_node.node.properties.get(property_id);
         if property.is_none() {
             return Err(GraphError::from(format!(
                 "Node property '{}' not found for '{}'",
@@ -103,8 +98,8 @@ impl<'a> GraphBuilder<'a> {
 
         let mut values = placed_node.values.clone();
         values.insert(
-            PropertyId::from(property_id),
-            PropertyValue::new(property.id().clone(), value.clone()),
+            String::from(property_id),
+            PropertyValue::new(property_id, value.clone()),
         );
         self.graph.nodes.insert(
             placed_node.key.clone(),
@@ -125,8 +120,8 @@ impl<'a> GraphBuilder<'a> {
         target_node: &PlacedNode,
         target_property_id: &str,
     ) -> Result<(), GraphError> {
-        let source_property = source_node.get_property_by_id(source_property_id);
-        let target_property = target_node.get_property_by_id(target_property_id);
+        let source_property = source_node.get_property(source_property_id);
+        let target_property = target_node.get_property(target_property_id);
 
         if source_node.key == target_node.key {
             return Err(GraphError::new("Cannot connect to self."));

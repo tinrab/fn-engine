@@ -20,27 +20,24 @@ extern crate serde;
 #[macro_use]
 extern crate serde_derive;
 
-use std::rc::Rc;
 use std::sync::Arc;
-use std::thread::JoinHandle;
 use std::time::Duration;
 use std::{env, thread};
 
 use config::{Config, File};
 use crossbeam::channel::{Receiver, Sender};
-use crossbeam::sync::WaitGroup;
 
 use graph::graph::Graph;
-use graph::schema::Schema;
 
 use crate::error::EngineError;
+use crate::library::Library;
 use crate::message::{Context, Message};
 use crate::worker::Worker;
 
 pub mod error;
+pub mod library;
 pub mod message;
 pub mod processor;
-pub mod schema;
 pub mod worker;
 
 #[derive(Debug, Deserialize)]
@@ -75,20 +72,20 @@ impl EngineConfig {
 pub struct Engine {
     /// Config for this engine.
     pub config: EngineConfig,
-    /// Schema used by this engine.
-    pub schema: Schema,
+    /// Library used by this engine.
+    pub library: Arc<Library>,
 
     message_sender: Sender<Message>,
     message_receiver: Receiver<Message>,
 }
 
 impl Engine {
-    /// Constructs a new engine for executing graphs based on `schema`.
-    pub fn new(config: EngineConfig, schema: Schema) -> Self {
+    /// Constructs a new `Engine`.
+    pub fn new(config: EngineConfig, library: Library) -> Self {
         let (s, r) = crossbeam::channel::bounded::<Message>(10);
         Engine {
             config,
-            schema,
+            library: Arc::new(library),
             message_sender: s,
             message_receiver: r,
         }
@@ -100,9 +97,10 @@ impl Engine {
             let id = i as u64;
             let outbox = self.message_sender.clone();
             let inbox = self.message_receiver.clone();
+            let library = Arc::downgrade(&self.library);
 
             thread::spawn(move || {
-                let worker = Worker::new(id, outbox, inbox);
+                let mut worker = Worker::new(id, outbox, inbox, library);
                 worker.run();
             });
         }

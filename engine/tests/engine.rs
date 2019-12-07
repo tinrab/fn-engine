@@ -1,4 +1,5 @@
 use engine::{Engine, EngineConfig};
+use engine::library::Library;
 use graph::error::GraphError;
 use graph::graph::Graph;
 use graph::schema::Schema;
@@ -6,7 +7,7 @@ use graph::value::Value;
 
 #[test]
 fn basic() {
-    let schema = engine::schema::get();
+    let library = Library::get();
     let build_graph = |schema: &Schema| -> Result<Graph, GraphError> {
         let mut gb = Graph::builder(schema);
         let a1 = gb.node("action", "a1")?;
@@ -34,9 +35,9 @@ fn basic() {
         gb.build()
     };
 
-    let graph = build_graph(&schema).unwrap();
+    let graph = build_graph(&library.schema).unwrap();
     let engine_config = EngineConfig::load().unwrap();
-    let mut engine = Engine::new(engine_config, schema);
+    let mut engine = Engine::new(engine_config, library);
 
     engine.run();
     engine.execute(graph);

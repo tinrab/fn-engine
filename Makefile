@@ -1,10 +1,10 @@
 .PHONY: test
 test: ## Run tests
-	cargo test --verbose
+	cargo test --workspace
 
 .PHONY: build
 build: ## Run build
-	cargo build --verbose
+	cargo build --workspace
 
 .PHONY: lint
 lint: ## Run lints

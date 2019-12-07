@@ -1,67 +1,60 @@
 //! Properties declared for nodes.
 
 use crate::value::DataType;
-use std::fmt::{Display, Error, Formatter};
 
-/// Type for property ids.
-#[derive(Debug, Hash, Clone, PartialOrd, Eq, PartialEq)]
-pub struct PropertyId(String);
-
-impl Display for PropertyId {
-    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
-        f.write_str(self.0.as_str())
-    }
+/// Event can trigger a command.
+#[derive(Debug, Clone, PartialOrd, PartialEq)]
+pub struct EventProperty {
+    /// Property's id.
+    pub id: String,
 }
 
-impl From<&str> for PropertyId {
-    fn from(s: &str) -> Self {
-        PropertyId(String::from(s))
-    }
+/// Command executes specific computation inside a node.
+#[derive(Debug, Clone, PartialOrd, PartialEq)]
+pub struct CommandProperty {
+    /// Property's id.
+    pub id: String,
 }
 
-impl Into<String> for PropertyId {
-    fn into(self) -> String {
-        self.0
-    }
+/// Input data for a node.
+#[derive(Debug, Clone, PartialOrd, PartialEq)]
+pub struct InputProperty {
+    /// Property's id.
+    pub id: String,
+    /// Property's data type.
+    pub data_type: DataType,
+}
+
+/// Output is produces by a node.
+#[derive(Debug, Clone, PartialOrd, PartialEq)]
+pub struct OutputProperty {
+    /// Property's id.
+    pub id: String,
+    /// Property's data type.
+    pub data_type: DataType,
 }
 
 /// Represents a property.
 #[derive(Debug, Clone, PartialOrd, PartialEq)]
 pub enum Property {
     /// Event can trigger a command.
-    Event {
-        /// Property's id.
-        id: PropertyId,
-    },
+    Event(EventProperty),
     /// Command executes specific computation inside a node.
-    Command {
-        /// Property's id.
-        id: PropertyId,
-    },
+    Command(CommandProperty),
     /// Input data for a node.
-    Input {
-        /// Property's id.
-        id: PropertyId,
-        /// Property's data type.
-        data_type: DataType,
-    },
+    Input(InputProperty),
     /// Output is produces by a node.
-    Output {
-        /// Property's id.
-        id: PropertyId,
-        /// Property's data type.
-        data_type: DataType,
-    },
+    Output(OutputProperty),
 }
 
 impl Property {
     /// Returns property's id.
-    pub fn id(&self) -> &PropertyId {
+    pub fn id(&self) -> &String {
         match self {
-            Property::Event { id } => id,
-            Property::Command { id } => id,
-            Property::Input { id, .. } => id,
-            Property::Output { id, .. } => id,
+            Property::Event(property) => &property.id,
+            Property::Command(property) => &property.id,
+            Property::Input(property) => &property.id,
+            Property::Output(property) => &property.id,
         }
     }
 
@@ -77,7 +70,7 @@ impl Property {
 
     /// Returns whether property is `Property::Event`.
     pub fn is_event(&self) -> bool {
-        if let Property::Event { .. } = self {
+        if let Property::Event(_) = self {
             true
         } else {
             false
@@ -86,7 +79,7 @@ impl Property {
 
     /// Returns whether property is `Property::Command`.
     pub fn is_command(&self) -> bool {
-        if let Property::Command { .. } = self {
+        if let Property::Command(_) = self {
             true
         } else {
             false
@@ -95,7 +88,7 @@ impl Property {
 
     /// Returns whether property is `Property::Input`.
     pub fn is_input(&self) -> bool {
-        if let Property::Input { .. } = self {
+        if let Property::Input(_) = self {
             true
         } else {
             false
@@ -104,7 +97,7 @@ impl Property {
 
     /// Returns whether property is `Property::Output`.
     pub fn is_output(&self) -> bool {
-        if let Property::Output { .. } = self {
+        if let Property::Output(_) = self {
             true
         } else {
             false
@@ -114,8 +107,8 @@ impl Property {
     /// Returns whether property can be used as a source.
     pub fn is_source(&self) -> bool {
         match self {
-            Property::Input { .. } => true,
-            Property::Command { .. } => true,
+            Property::Input(_) => true,
+            Property::Command(_) => true,
             _ => false,
         }
     }
@@ -128,8 +121,8 @@ impl Property {
     /// Returns property's data type if property is an input or output.
     pub fn data_type(&self) -> Option<&DataType> {
         match self {
-            Property::Input { data_type, .. } => Some(data_type),
-            Property::Output { data_type, .. } => Some(data_type),
+            Property::Input(property) => Some(&property.data_type),
+            Property::Output(property) => Some(&property.data_type),
             _ => None,
         }
     }

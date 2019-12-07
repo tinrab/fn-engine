@@ -1,40 +1,25 @@
 //! Types for defining nodes.
 
 use std::collections::HashMap;
-use std::fmt::{Display, Error, Formatter};
 
-use crate::schema::property::{Property, PropertyId};
+use crate::schema::property::{
+    CommandProperty, EventProperty, InputProperty, OutputProperty, Property,
+};
 use crate::value::DataType;
-
-/// Type for node ids.
-#[derive(Debug, Hash, Clone, PartialOrd, Eq, PartialEq)]
-pub struct NodeId(String);
-
-impl Display for NodeId {
-    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
-        f.write_str(self.0.as_str())
-    }
-}
-
-impl From<&str> for NodeId {
-    fn from(s: &str) -> Self {
-        NodeId(String::from(s))
-    }
-}
 
 /// Describes a node.
 #[derive(Debug, Clone)]
 pub struct Node {
     /// Unique id of a node.
-    pub id: NodeId,
+    pub id: String,
     /// Node's properties by ids.
-    pub properties: HashMap<PropertyId, Property>,
+    pub properties: HashMap<String, Property>,
 }
 
 impl<'a> Node {
     /// Constructs a `NodeBuilder`.
-    pub fn builder(id: &'a str) -> NodeBuilder {
-        NodeBuilder::new(NodeId::from(id))
+    pub fn builder(id: &str) -> NodeBuilder {
+        NodeBuilder::new(id)
     }
 }
 
@@ -44,10 +29,10 @@ pub struct NodeBuilder {
 }
 
 impl<'a> NodeBuilder {
-    fn new(id: NodeId) -> Self {
+    fn new(id: &str) -> Self {
         NodeBuilder {
             node: Node {
-                id,
+                id: String::from(id),
                 properties: Default::default(),
             },
         }
@@ -63,32 +48,32 @@ impl<'a> NodeBuilder {
 
     /// Declares a new command property.
     pub fn command(&'a mut self, id: &str) -> &'a mut Self {
-        self.property(Property::Command {
-            id: PropertyId::from(id),
-        })
+        self.property(Property::Command(CommandProperty {
+            id: String::from(id),
+        }))
     }
 
     /// Declares a new event property.
     pub fn event(&'a mut self, id: &str) -> &'a mut Self {
-        self.property(Property::Event {
-            id: PropertyId::from(id),
-        })
+        self.property(Property::Event(EventProperty {
+            id: String::from(id),
+        }))
     }
 
     /// Declares a new input property.
     pub fn input(&'a mut self, id: &str, data_type: DataType) -> &'a mut Self {
-        self.property(Property::Input {
-            id: PropertyId::from(id),
+        self.property(Property::Input(InputProperty {
+            id: String::from(id),
             data_type,
-        })
+        }))
     }
 
     /// Declares a new output property.
     pub fn output(&'a mut self, id: &str, data_type: DataType) -> &'a mut Self {
-        self.property(Property::Output {
-            id: PropertyId::from(id),
+        self.property(Property::Output(OutputProperty {
+            id: String::from(id),
             data_type,
-        })
+        }))
     }
 
     /// Builds a `Node`.
@@ -103,18 +88,14 @@ mod tests {
 
     #[test]
     fn basic() {
-        let n1 = Node::builder("a")
-            .property(Property::Command {
-                id: "command".into(),
-            })
-            .build();
+        let n1 = Node::builder("a").command("command").build();
 
-        assert_eq!(n1.id, NodeId::from("a"));
+        assert_eq!(n1.id, String::from("a"));
         assert_eq!(
-            Property::Command {
-                id: "command".into()
-            },
-            *n1.properties.get(&PropertyId::from("command")).unwrap()
+            Property::Command(CommandProperty {
+                id: String::from("command"),
+            }),
+            *n1.properties.get(&String::from("command")).unwrap()
         )
     }
 }

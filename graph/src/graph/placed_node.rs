@@ -4,7 +4,7 @@ use std::collections::HashMap;
 
 use crate::graph::property_value::PropertyValue;
 use crate::schema::node::Node;
-use crate::schema::property::{Property, PropertyId};
+use crate::schema::property::Property;
 use crate::value::Value;
 
 /// Represents a placed node inside an graph.
@@ -15,7 +15,7 @@ pub struct PlacedNode {
     /// Unique key.
     pub key: String,
     /// Assigned or default values for this node instance.
-    pub values: HashMap<PropertyId, PropertyValue>,
+    pub values: HashMap<String, PropertyValue>,
 }
 
 impl PlacedNode {
@@ -32,7 +32,7 @@ impl PlacedNode {
                     (
                         property.id().clone(),
                         PropertyValue::new(
-                            property.id().clone(),
+                            property.id(),
                             Value::default_for(*property.data_type().unwrap()),
                         ),
                     )
@@ -44,17 +44,10 @@ impl PlacedNode {
     /// Returns node's property.
     /// # Panics
     /// If propert does not exist.
-    pub fn get_property(&self, property_id: &PropertyId) -> &Property {
-        self.node.properties.get(property_id).unwrap()
-    }
-
-    /// Returns node's property by string id.
-    /// # Panics
-    /// If propert does not exist.
-    pub fn get_property_by_id(&self, property_id: &str) -> &Property {
+    pub fn get_property(&self, property_id: &str) -> &Property {
         self.node
             .properties
-            .get(&PropertyId::from(property_id))
+            .get(&String::from(property_id))
             .unwrap()
     }
 }

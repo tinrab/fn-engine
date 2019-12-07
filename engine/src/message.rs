@@ -4,7 +4,6 @@ use std::sync::Arc;
 
 use graph::graph::placed_node::PlacedNode;
 use graph::graph::Graph;
-use graph::schema::property::PropertyId;
 
 /// Context for current point of execution.
 #[derive(Debug)]
@@ -17,7 +16,7 @@ pub struct Context {
 #[derive(Debug)]
 pub struct Instruction {
     pub context: Context,
-    pub command_id: PropertyId,
+    pub command_id: String,
 }
 
 /// Message represents a type for communication between workers.
@@ -41,7 +40,7 @@ impl Message {
     pub fn instruction(context: Context, command_id: &str) -> Self {
         Message::Instruction(Instruction {
             context,
-            command_id: PropertyId::from(command_id),
+            command_id: String::from(command_id),
         })
     }
 }
